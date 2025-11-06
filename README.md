@@ -46,7 +46,7 @@ Lista de funciones clave del software:
 ## Autores
 Isabel Escobar Martinez
 
-Isabella 
+Isabella Rodriguez Bautista
 
 Dana Sofia Tintinago Valverde 
 
