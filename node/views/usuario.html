@@ -164,37 +164,42 @@
   </div>
 
   <script>
-    const registerForm = document.getElementById('registerForm');
-    const errorMsg = document.getElementById('errorMsg');
+  const registerForm = document.getElementById('registerForm');
+  const errorMsg = document.getElementById('errorMsg');
 
-    registerForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      errorMsg.textContent = '';
+  registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMsg.textContent = '';
 
-      const data = {
-        nombre: document.getElementById('nombre').value.trim(),
-        apellido: document.getElementById('apellido').value.trim(),
-        cedula: document.getElementById('cedula').value.trim(),
-        usuario: document.getElementById('usuario').value.trim(),
-        contraseña: document.getElementById('contraseña').value.trim()
-      };
+    const data = {
+      nombre: document.getElementById('nombre').value.trim(),
+      apellido: document.getElementById('apellido').value.trim(),
+      cedula: document.getElementById('cedula').value.trim(),
+      usuario: document.getElementById('usuario').value.trim(),
+      contraseña: document.getElementById('contraseña').value.trim()
+    };
 
-      try {
-        const res = await fetch('/routers/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
+    try {
+      const res = await fetch('/api/register', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
 
-        if (res.ok) {
-          window.location.href = '/login';
-        } else {
-          errorMsg.textContent = 'Error en el registro. Verifica los datos.';
-        }
-      } catch (error) {
-        errorMsg.textContent = 'Error al conectar con el servidor.';
+      if (res.ok) {
+        errorMsg.style.color = 'lime';
+        errorMsg.textContent = 'Registro exitoso. Redirigiendo...';
+        setTimeout(() => window.location.href = '/login', 1500);
+      } else {
+        errorMsg.style.color = '#ff8b8b';
+        errorMsg.textContent = ' Error en el registro. Verifica los datos.';
       }
-    });
-  </script>
+    } catch (error) {
+      errorMsg.style.color = '#ff8b8b';
+      errorMsg.textContent = ' Error al conectar con el servidor.';
+    }
+  });
+</script>
+
 </body>
 </html>

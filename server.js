@@ -1,24 +1,23 @@
-// server.js - Integrado con tu estructura existente
 const path = require('path');
 const express = require('express');
 const sequelize = require('./node/database/conexion');
 const router = require('./node/routers/router');
-const jwt= require("jsonwebtoken");
+const Usuario = require('./node/models/usuarioModel'); // Importado aquí
 
 const app = express();
 const PORT = 3000;
 
-// Middlewares para JSON y formularios
+// 🧩 Middlewares para JSON y formularios
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Archivos estáticos
-app.use(express.static(path.join(__dirname, 'node')));
+// 🗂️ Archivos estáticos (solo la carpeta views)
+app.use(express.static(path.join(__dirname, 'node', 'views')));
 
-// Rutas API (router con JWT)
-app.use('/routers', router);
+// 🛠️ Rutas API
+app.use('/api', router);
 
-// Vistas independientes
+// 🧭 Rutas de vistas
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'node', 'views', 'index.html'));
 });
@@ -31,19 +30,20 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'node', 'views', 'login.html'));
 });
 
-// Conexión a la base de datos y sincronización
-sequelize.authenticate()
-  .then(() => {
-    console.log('Conexión exitosa con MySQL');
-    // Sincronizar modelos (crear tablas si no existen)
-    return sequelize.sync({ alter: true });
-  })
-  .then(() => {
-    console.log('Tablas sincronizadas');
-  })
-  .catch(err => console.error('Error al conectar con MySQL:', err));
+// 🔄 Conexión y sincronización de la base de datos
+(async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('✅ Conexión exitosa con MySQL');
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
-});
+    await Usuario.sync(); // mantiene los datos existentes
+    console.log('✅ Tabla "usuario" sincronizada correctamente');
+
+    // 🚀 Iniciar servidor solo si la conexión fue exitosa
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor ejecutándose en http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error('❌ Error al conectar con MySQL:', err);
+  }
+})();

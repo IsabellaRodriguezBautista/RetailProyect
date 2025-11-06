@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard - Ropa Retail</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial; margin: 40px; background: #fafafa; }
+    canvas { margin: 20px auto; display: block; max-width: 700px; }
+  </style>
+</head>
+<body>
+  <h1>📈 Dashboard de Ventas - RopaRetail</h1>
+
+  <h3>Top 10 productos más vendidos</h3>
+  <canvas id="chartRotacion"></canvas>
+
+  <h3>Ventas por categoría</h3>
+  <canvas id="chartCategoria"></canvas>
+
+  <h3>Rotación por género y talla</h3>
+  <canvas id="chartGeneroTalla"></canvas>
+
+  <script>
+    async function crearGraficos() {
+      // Rotación
+      const res1 = await fetch("/api/rotacion");
+      const data1 = await res1.json();
+      new Chart(document.getElementById("chartRotacion"), {
+        type: "bar",
+        data: {
+          labels: data1.map(d => d.producto),
+          datasets: [{
+            label: "Unidades vendidas",
+            data: data1.map(d => d.total_vendido)
+          }]
+        }
+      });
+
+      // Categoría
+      const res2 = await fetch("/api/categoria");
+      const data2 = await res2.json();
+      new Chart(document.getElementById("chartCategoria"), {
+        type: "pie",
+        data: {
+          labels: data2.map(d => d.categoria),
+          datasets: [{
+            label: "Total ventas",
+            data: data2.map(d => d.total_ventas)
+          }]
+        }
+      });
+
+      // Género y talla
+      const res3 = await fetch("/api/genero_talla");
+      const data3 = await res3.json();
+      new Chart(document.getElementById("chartGeneroTalla"), {
+        type: "bar",
+        data: {
+          labels: data3.map(d => `${d.genero} - ${d.talla}`),
+          datasets: [{
+            label: "Unidades vendidas",
+            data: data3.map(d => d.unidades_vendidas)
+          }]
+        }
+      });
+    }
+    crearGraficos();
+  </script>
+</body>
+</html>

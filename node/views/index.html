@@ -2,28 +2,229 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Profesional</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    /* Sidebar */
+    #sidebar {
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      background-color: #343a40;
+      color: #fff;
+      padding-top: 20px;
+    }
+    #sidebar .nav-link {
+      color: #ddd;
+      margin: 5px 0;
+      font-weight: 500;
+    }
+    #sidebar .nav-link:hover {
+      color: #fff;
+      background-color: #495057;
+      border-radius: 8px;
+    }
+
+    /* Main content */
+    #main-content {
+      margin-left: 250px;
+      padding: 30px;
+    }
+
+    h1 {
+      font-weight: 700;
+      color: #343a40;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      margin-bottom: 30px;
+    }
+
+    .card-header {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    canvas {
+      max-height: 300px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Dashboard protegido</h1>
-  <button id="loadDashboard">Cargar información</button>
-  <pre id="output"></pre>
 
+  <!-- Sidebar -->
+  <nav id="sidebar" class="d-flex flex-column">
+    <h3 class="text-center mb-4">Mi Dashboard</h3>
+    <a class="nav-link" href="#">Inicio</a>
+    <a class="nav-link" href="#">Productos</a>
+    <a class="nav-link" href="#">Ventas</a>
+    <a class="nav-link" href="#">Categorías</a>
+    <a class="nav-link" href="#">Usuarios</a>
+    <a class="nav-link" href="#">Promociones</a>
+    <a class="nav-link" href="#">Cerrar sesión</a>
+  </nav>
+
+  <!-- Main Content -->
+  <div id="main-content">
+    <h1>📊 Dashboard de Ventas</h1>
+
+    <!-- KPI Cards -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card text-center p-3">
+          <h5>Total Ventas</h5>
+          <h3>$3,200,000</h3>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center p-3">
+          <h5>Productos Vendidos</h5>
+          <h3>620</h3>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center p-3">
+          <h5>Clientes</h5>
+          <h3>120</h3>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center p-3">
+          <h5>Productos Top</h5>
+          <h3>Camisa Casual</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-4">
+      <div class="col-lg-6 col-md-12">
+        <div class="card p-3">
+          <div class="card-header bg-primary text-white">Top Productos</div>
+          <div class="card-body">
+            <canvas id="topProductosChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 col-md-12">
+        <div class="card p-3">
+          <div class="card-header bg-success text-white">Comparativo por Categoría</div>
+          <div class="card-body">
+            <canvas id="categoriaChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 col-md-12">
+        <div class="card p-3">
+          <div class="card-header bg-warning text-dark">Comparativo por Género</div>
+          <div class="card-body">
+            <canvas id="generoChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 col-md-12">
+        <div class="card p-3">
+          <div class="card-header bg-info text-white">Comparativo por Talla</div>
+          <div class="card-body">
+            <canvas id="tallaChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
   <script>
-    const btn = document.getElementById('loadDashboard');
-    const output = document.getElementById('output');
+    // Datos simulados
+    const topProductos = [
+      { nombre: "Camisa Casual", total_vendido: 120, ventas: 480000 },
+      { nombre: "Pantalón Jeans", total_vendido: 95, ventas: 665000 },
+      { nombre: "Chaqueta Deportiva", total_vendido: 70, ventas: 875000 }
+    ];
 
-    btn.addEventListener('click', async () => {
-      const token = localStorage.getItem('token');
-      if (!token) return alert('No estás logueado');
+    const comparativos = {
+      byCategoria: [
+        { nombre_categoria: "Ropa Hombre", unidades_vendidas: 230, ventas: 1560000 },
+        { nombre_categoria: "Ropa Mujer", unidades_vendidas: 180, ventas: 1340000 }
+      ],
+      byGenero: [
+        { genero: "Masculino", unidades: 210, ventas: 1200000 },
+        { genero: "Femenino", unidades: 200, ventas: 1100000 }
+      ],
+      byTalla: [
+        { talla: "S", unidades: 90, ventas: 450000 },
+        { talla: "M", unidades: 130, ventas: 650000 },
+        { talla: "L", unidades: 100, ventas: 500000 }
+      ]
+    };
 
-      const res = await fetch('/routers/dashboard', {
-        headers: { 'Authorization': token }
-      });
+    // Gráfico Top Productos
+    const ctxTop = document.getElementById('topProductosChart').getContext('2d');
+    new Chart(ctxTop, {
+      type: 'bar',
+      data: {
+        labels: topProductos.map(p => p.nombre),
+        datasets: [
+          { label: 'Unidades Vendidas', data: topProductos.map(p => p.total_vendido), backgroundColor: 'rgba(0, 123, 255, 0.7)' },
+          { label: 'Ventas ($)', data: topProductos.map(p => p.ventas), backgroundColor: 'rgba(0, 200, 83, 0.7)' }
+        ]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+    });
 
-      const data = await res.json();
-      output.textContent = JSON.stringify(data, null, 2);
+    // Comparativo por Categoría
+    const ctxCategoria = document.getElementById('categoriaChart').getContext('2d');
+    new Chart(ctxCategoria, {
+      type: 'doughnut',
+      data: { labels: comparativos.byCategoria.map(c => c.nombre_categoria), datasets: [{ data: comparativos.byCategoria.map(c => c.unidades_vendidas), backgroundColor: ['#28a745', '#218838'] }] },
+      options: { responsive: true }
+    });
+
+    // Comparativo por Género
+    const ctxGenero = document.getElementById('generoChart').getContext('2d');
+    new Chart(ctxGenero, {
+      type: 'pie',
+      data: { labels: comparativos.byGenero.map(g => g.genero), datasets: [{ data: comparativos.byGenero.map(g => g.unidades), backgroundColor: ['#ffc107', '#e0a800'] }] },
+      options: { responsive: true }
+    });
+
+    // Comparativo por Talla
+    const ctxTalla = document.getElementById('tallaChart').getContext('2d');
+    new Chart(ctxTalla, {
+      type: 'bar',
+      data: {
+        labels: comparativos.byTalla.map(t => t.talla),
+        datasets: [
+          { label: 'Unidades Vendidas', data: comparativos.byTalla.map(t => t.unidades), backgroundColor: 'rgba(23, 162, 184, 0.7)' },
+          { label: 'Ventas ($)', data: comparativos.byTalla.map(t => t.ventas), backgroundColor: 'rgba(108, 117, 125, 0.7)' }
+        ]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
     });
   </script>
+
 </body>
 </html>
