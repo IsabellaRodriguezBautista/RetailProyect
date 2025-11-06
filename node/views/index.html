@@ -79,8 +79,8 @@
     <a class="nav-link" href="#">Productos</a>
     <a class="nav-link" href="#">Ventas</a>
     <a class="nav-link" href="#">Categorías</a>
-    <a class="nav-link" href="#">Usuarios</a>
     <a class="nav-link" href="#">Promociones</a>
+    <a class="nav-link" href="#">Usuarios</a>
     <a class="nav-link" href="#">Cerrar sesión</a>
   </nav>
 
@@ -93,13 +93,13 @@
       <div class="col-md-3">
         <div class="card text-center p-3">
           <h5>Total Ventas</h5>
-          <h3>$3,200,000</h3>
+          <h3 id="totalVentas"></h3>
         </div>
       </div>
       <div class="col-md-3">
         <div class="card text-center p-3">
           <h5>Productos Vendidos</h5>
-          <h3>620</h3>
+          <h3 id="totalUnidades"></h3>
         </div>
       </div>
       <div class="col-md-3">
@@ -110,8 +110,8 @@
       </div>
       <div class="col-md-3">
         <div class="card text-center p-3">
-          <h5>Productos Top</h5>
-          <h3>Camisa Casual</h3>
+          <h5>Producto Top</h5>
+          <h3 id="productoTop"></h3>
         </div>
       </div>
     </div>
@@ -158,72 +158,139 @@
 
   <!-- Scripts -->
   <script>
-    // Datos simulados
-    const topProductos = [
-      { nombre: "Camisa Casual", total_vendido: 120, ventas: 480000 },
-      { nombre: "Pantalón Jeans", total_vendido: 95, ventas: 665000 },
-      { nombre: "Chaqueta Deportiva", total_vendido: 70, ventas: 875000 }
+    // Datos quemados
+    const productos = [
+      { id:1,nombre:"Camisa Casual",categoria:"Ropa Hombre",genero:"Masculino",talla:"M",precio:40000 },
+      { id:2,nombre:"Pantalón Jeans",categoria:"Ropa Hombre",genero:"Masculino",talla:"L",precio:70000 },
+      { id:3,nombre:"Chaqueta Deportiva",categoria:"Ropa Mujer",genero:"Femenino",talla:"S",precio:125000 },
+      { id:4,nombre:"Blusa Elegante",categoria:"Ropa Mujer",genero:"Femenino",talla:"M",precio:90000 },
+      { id:5,nombre:"Zapatos Urbanos",categoria:"Calzado",genero:"Masculino",talla:"42",precio:150000 },
+      { id:6,nombre:"Zapatos Tacón",categoria:"Calzado",genero:"Femenino",talla:"38",precio:130000 }
     ];
 
+    const ventas = [
+      {productoId:1,cantidad:50},{productoId:2,cantidad:30},{productoId:3,cantidad:20},
+      {productoId:4,cantidad:25},{productoId:5,cantidad:15},{productoId:6,cantidad:10},
+      {productoId:1,cantidad:30},{productoId:3,cantidad:15}
+    ];
+
+    const promociones = [
+      {productoId:1,descuento:10,descripcion:"10% en Camisa Casual"},
+      {productoId:3,descuento:20,descripcion:"20% en Chaqueta Deportiva"},
+      {productoId:5,descuento:15,descripcion:"15% en Zapatos Urbanos"}
+    ];
+
+    // Funciones para calcular totales
+    function calcularVentasTotales() {
+      return productos.map(prod => {
+        const ventasProd = ventas.filter(v => v.productoId === prod.id);
+        const total_vendido = ventasProd.reduce((acc,v)=>acc+v.cantidad,0);
+        const ventas_total = total_vendido * prod.precio;
+        return {...prod,total_vendido,ventas:ventas_total};
+      });
+    }
+
+    function comparativoCategorias() {
+      const categorias = [...new Set(productos.map(p=>p.categoria))];
+      return categorias.map(cat=>{
+        const productosCat = productos.filter(p=>p.categoria===cat);
+        let unidades=0,ventas_total=0;
+        productosCat.forEach(prod=>{
+          const ventasProd = ventas.filter(v=>v.productoId===prod.id);
+          unidades+=ventasProd.reduce((acc,v)=>acc+v.cantidad,0);
+          ventas_total+=ventasProd.reduce((acc,v)=>acc+v.cantidad*prod.precio,0);
+        });
+        return {nombre_categoria:cat,unidades_vendidas:unidades,ventas:ventas_total};
+      });
+    }
+
+    function comparativoGenero() {
+      const generos = [...new Set(productos.map(p=>p.genero))];
+      return generos.map(g=>{
+        const productosGenero = productos.filter(p=>p.genero===g);
+        let unidades=0,ventas_total=0;
+        productosGenero.forEach(prod=>{
+          const ventasProd = ventas.filter(v=>v.productoId===prod.id);
+          unidades+=ventasProd.reduce((acc,v)=>acc+v.cantidad,0);
+          ventas_total+=ventasProd.reduce((acc,v)=>acc+v.cantidad*prod.precio,0);
+        });
+        return {genero:g,unidades,ventas:ventas_total};
+      });
+    }
+
+    function comparativoTalla() {
+      const tallas = [...new Set(productos.map(p=>p.talla))];
+      return tallas.map(t=>{
+        const productosTalla = productos.filter(p=>p.talla===t);
+        let unidades=0,ventas_total=0;
+        productosTalla.forEach(prod=>{
+          const ventasProd = ventas.filter(v=>v.productoId===prod.id);
+          unidades+=ventasProd.reduce((acc,v)=>acc+v.cantidad,0);
+          ventas_total+=ventasProd.reduce((acc,v)=>acc+v.cantidad*prod.precio,0);
+        });
+        return {talla:t,unidades,ventas:ventas_total};
+      });
+    }
+
+    // Datos finales
+    const topProductos = calcularVentasTotales();
     const comparativos = {
-      byCategoria: [
-        { nombre_categoria: "Ropa Hombre", unidades_vendidas: 230, ventas: 1560000 },
-        { nombre_categoria: "Ropa Mujer", unidades_vendidas: 180, ventas: 1340000 }
-      ],
-      byGenero: [
-        { genero: "Masculino", unidades: 210, ventas: 1200000 },
-        { genero: "Femenino", unidades: 200, ventas: 1100000 }
-      ],
-      byTalla: [
-        { talla: "S", unidades: 90, ventas: 450000 },
-        { talla: "M", unidades: 130, ventas: 650000 },
-        { talla: "L", unidades: 100, ventas: 500000 }
-      ]
+      byCategoria: comparativoCategorias(),
+      byGenero: comparativoGenero(),
+      byTalla: comparativoTalla()
     };
 
-    // Gráfico Top Productos
-    const ctxTop = document.getElementById('topProductosChart').getContext('2d');
-    new Chart(ctxTop, {
-      type: 'bar',
-      data: {
-        labels: topProductos.map(p => p.nombre),
-        datasets: [
-          { label: 'Unidades Vendidas', data: topProductos.map(p => p.total_vendido), backgroundColor: 'rgba(0, 123, 255, 0.7)' },
-          { label: 'Ventas ($)', data: topProductos.map(p => p.ventas), backgroundColor: 'rgba(0, 200, 83, 0.7)' }
+    // Actualizar KPIs
+    document.getElementById("totalVentas").textContent = "$" + topProductos.reduce((acc,p)=>acc+p.ventas,0).toLocaleString();
+    document.getElementById("totalUnidades").textContent = topProductos.reduce((acc,p)=>acc+p.total_vendido,0);
+    document.getElementById("productoTop").textContent = topProductos.sort((a,b)=>b.total_vendido-a.total_vendido)[0].nombre;
+
+    // Chart Top Productos
+    new Chart(document.getElementById('topProductosChart').getContext('2d'),{
+      type:'bar',
+      data:{
+        labels: topProductos.map(p=>p.nombre),
+        datasets:[
+          {label:'Unidades Vendidas', data: topProductos.map(p=>p.total_vendido), backgroundColor:'rgba(0,123,255,0.7)'},
+          {label:'Ventas ($)', data: topProductos.map(p=>p.ventas), backgroundColor:'rgba(0,200,83,0.7)'}
         ]
       },
-      options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+      options:{responsive:true,plugins:{legend:{position:'top'}},scales:{y:{beginAtZero:true}}}
     });
 
-    // Comparativo por Categoría
-    const ctxCategoria = document.getElementById('categoriaChart').getContext('2d');
-    new Chart(ctxCategoria, {
-      type: 'doughnut',
-      data: { labels: comparativos.byCategoria.map(c => c.nombre_categoria), datasets: [{ data: comparativos.byCategoria.map(c => c.unidades_vendidas), backgroundColor: ['#28a745', '#218838'] }] },
-      options: { responsive: true }
+    // Chart Categoría
+    new Chart(document.getElementById('categoriaChart').getContext('2d'),{
+      type:'doughnut',
+      data:{
+        labels: comparativos.byCategoria.map(c=>c.nombre_categoria),
+        datasets:[{data:comparativos.byCategoria.map(c=>c.unidades_vendidas),backgroundColor:['#28a745','#218838','#17a2b8']}]
+      },
+      options:{responsive:true}
     });
 
-    // Comparativo por Género
-    const ctxGenero = document.getElementById('generoChart').getContext('2d');
-    new Chart(ctxGenero, {
-      type: 'pie',
-      data: { labels: comparativos.byGenero.map(g => g.genero), datasets: [{ data: comparativos.byGenero.map(g => g.unidades), backgroundColor: ['#ffc107', '#e0a800'] }] },
-      options: { responsive: true }
+    // Chart Género
+    new Chart(document.getElementById('generoChart').getContext('2d'),{
+      type:'pie',
+      data:{
+        labels: comparativos.byGenero.map(g=>g.genero),
+        datasets:[{data:comparativos.byGenero.map(g=>g.unidades),backgroundColor:['#ffc107','#e0a800']}]
+      },
+      options:{responsive:true}
     });
 
-    // Comparativo por Talla
-    const ctxTalla = document.getElementById('tallaChart').getContext('2d');
-    new Chart(ctxTalla, {
-      type: 'bar',
-      data: {
-        labels: comparativos.byTalla.map(t => t.talla),
-        datasets: [
-          { label: 'Unidades Vendidas', data: comparativos.byTalla.map(t => t.unidades), backgroundColor: 'rgba(23, 162, 184, 0.7)' },
-          { label: 'Ventas ($)', data: comparativos.byTalla.map(t => t.ventas), backgroundColor: 'rgba(108, 117, 125, 0.7)' }
+    // Chart Talla
+    new Chart(document.getElementById('tallaChart').getContext('2d'),{
+      type:'bar',
+      data:{
+        labels: comparativos.byTalla.map(t=>t.talla),
+        datasets:[
+          {label:'Unidades Vendidas', data: comparativos.byTalla.map(t=>t.unidades), backgroundColor:'rgba(23,162,184,0.7)'},
+          {label:'Ventas ($)', data: comparativos.byTalla.map(t=>t.ventas), backgroundColor:'rgba(108,117,125,0.7)'}
         ]
       },
-      options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+      options:{responsive:true,plugins:{legend:{position:'top'}},scales:{y:{beginAtZero:true}}}
     });
+
   </script>
 
 </body>
