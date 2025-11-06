@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Usuario</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    /* Fondo elegante con degradado azul oscuro */
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      color: #fff;
+    }
+
+    /* Luces decorativas */
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      z-index: 1;
+    }
+
+    .circle.one {
+      width: 180px;
+      height: 180px;
+      background: rgba(0, 123, 255, 0.25);
+      top: -50px;
+      left: -60px;
+    }
+
+    .circle.two {
+      width: 150px;
+      height: 150px;
+      background: rgba(163, 0, 255, 0.25);
+      bottom: -60px;
+      right: -60px;
+    }
+
+    /* Contenedor del formulario tipo vidrio */
+    .form-container {
+      position: relative;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      padding: 3rem 2.5rem;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      z-index: 2;
+      animation: fadeIn 1s ease;
+    }
+
+    h1 {
+      font-weight: 600;
+      font-size: 2rem;
+      letter-spacing: 1px;
+      margin-bottom: 1.5rem;
+      color: #fff;
+    }
+
+    /* Campos */
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+      outline: none;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    input:focus {
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+
+    /* Botón */
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 114, 255, 0.4);
+    }
+
+    /* Animación de entrada */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Mensaje de error */
+    .error {
+      color: #ff8b8b;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      min-height: 18px;
+    }
+
+    /* Enlace inferior */
+    .link {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .link a {
+      color: #00c6ff;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .link a:hover {
+      color: #66b3ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="circle one"></div>
+  <div class="circle two"></div>
+
+  <div class="form-container">
+    <h1>Crear Cuenta</h1>
+    <form id="registerForm">
+      <input type="text" id="nombre" placeholder="Nombre" required />
+      <input type="text" id="apellido" placeholder="Apellido" required />
+      <input type="text" id="cedula" placeholder="Cédula" required />
+      <input type="text" id="usuario" placeholder="Usuario" required />
+      <input type="password" id="contraseña" placeholder="Contraseña" required />
+      <button type="submit">Registrarse</button>
+      <div class="error" id="errorMsg"></div>
+    </form>
+    <div class="link">
+      ¿Ya tienes cuenta? <a href="/login">Inicia sesión</a>
+    </div>
+  </div>
+
+  <script>
+    const registerForm = document.getElementById('registerForm');
+    const errorMsg = document.getElementById('errorMsg');
+
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.textContent = '';
+
+      const data = {
+        nombre: document.getElementById('nombre').value.trim(),
+        apellido: document.getElementById('apellido').value.trim(),
+        cedula: document.getElementById('cedula').value.trim(),
+        usuario: document.getElementById('usuario').value.trim(),
+        contraseña: document.getElementById('contraseña').value.trim()
+      };
+
+      try {
+        const res = await fetch('/routers/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (res.ok) {
+          window.location.href = '/login';
+        } else {
+          errorMsg.textContent = 'Error en el registro. Verifica los datos.';
+        }
+      } catch (error) {
+        errorMsg.textContent = 'Error al conectar con el servidor.';
+      }
+    });
+  </script>
+</body>
+</html>

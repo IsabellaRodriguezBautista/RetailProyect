@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Iniciar Sesión</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Fuente moderna -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* Fondo con degradado elegante y animado */
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #141E30, #243B55);
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    /* Efecto de partículas sutil */
+    body::before {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.05) 0%, transparent 60%),
+                  radial-gradient(circle at 80% 80%, rgba(255,255,255,0.03) 0%, transparent 60%);
+      animation: move-bg 10s ease-in-out infinite alternate;
+    }
+
+    @keyframes move-bg {
+      from { background-position: 0 0, 100% 100%; }
+      to { background-position: 100% 100%, 0 0; }
+    }
+
+    /* Contenedor principal estilo vidrio */
+    .login-container {
+      position: relative;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      padding: 3rem 2.5rem;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      width: 100%;
+      max-width: 380px;
+      z-index: 2;
+      animation: fadeIn 1s ease;
+    }
+
+    h1 {
+      font-weight: 600;
+      font-size: 2rem;
+      letter-spacing: 1px;
+      margin-bottom: 1.5rem;
+      color: #fff;
+    }
+
+    /* Campos de texto */
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+      outline: none;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    input:focus {
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+
+    /* Botón */
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 114, 255, 0.4);
+    }
+
+    /* Mensaje de error */
+    .error {
+      color: #ff8080;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      min-height: 18px;
+    }
+
+    /* Animación de entrada */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Detalle decorativo */
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: 1;
+    }
+
+    .circle.one {
+      width: 180px;
+      height: 180px;
+      background: rgba(0, 162, 255, 0.3);
+      top: -60px;
+      right: -60px;
+    }
+
+    .circle.two {
+      width: 150px;
+      height: 150px;
+      background: rgba(162, 0, 255, 0.3);
+      bottom: -50px;
+      left: -50px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="circle one"></div>
+  <div class="circle two"></div>
+
+  <div class="login-container">
+    <h1>Bienvenido</h1>
+    <form id="loginForm">
+      <input type="text" id="usuario" placeholder="Usuario" required />
+      <input type="password" id="contraseña" placeholder="Contraseña" required />
+      <button type="submit">Entrar</button>
+      <div class="error" id="errorMsg"></div>
+    </form>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.textContent = '';
+
+      const data = {
+        usuario: document.getElementById('usuario').value.trim(),
+        contraseña: document.getElementById('contraseña').value.trim()
+      };
+
+      try {
+        const res = await fetch('/routers/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (res.ok && result.token) {
+          localStorage.setItem('token', result.token);
+          window.location.href = '/dashboard';
+        } else {
+          errorMsg.textContent = result.message || 'Credenciales incorrectas.';
+        }
+      } catch (error) {
+        errorMsg.textContent = 'Error de conexión con el servidor.';
+      }
+    });
+  </script>
+</body>
+</html>
